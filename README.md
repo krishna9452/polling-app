@@ -114,3 +114,62 @@ GET /api/votes/poll/:pollId - Get votes for a poll
 ws://localhost:3000 - Real-time updates
 
 Connect with ?pollId=<POLL_ID> for specific poll updates
+
+## 🗄️ Database Schema
+```prisma
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  polls        Poll[]
+  votes        Vote[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Poll {
+  id          String      @id @default(cuid())
+  question    String
+  isPublished Boolean     @default(false)
+  creator     User        @relation(fields: [creatorId], references: [id])
+  creatorId   String
+  options     PollOption[]
+  votes       Vote[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model PollOption {
+  id        String   @id @default(cuid())
+  text      String
+  poll      Poll     @relation(fields: [pollId], references: [id])
+  pollId    String
+  votes     Vote[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Vote {
+  id           String     @id @default(cuid())
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  poll         Poll       @relation(fields: [pollId], references: [id])
+  pollId       String
+  pollOption   PollOption @relation(fields: [pollOptionId], references: [id])
+  pollOptionId String
+  createdAt    DateTime   @default(now())
+
+  @@unique([userId, pollId])
+}
+```
+## 🚦 Scripts
+1. npm run dev - Start development server with nodemon
+
+2. npm start - Start production server
+
+3. npm run prisma:generate - Generate Prisma client
+
+4. npm run prisma:push - Push schema to database
+
+5. npm run prisma:studio - Open Prisma Studio
