@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PollHub - Real-Time Polling</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gray: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .app {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .auth-section, .poll-creation {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .poll-list {
+            grid-column: 1 / -1;
+        }
+
+        .poll-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .poll-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .poll-question {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        .poll-options {
+            margin-bottom: 20px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: var(--light);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .option:hover {
+            background: #e0e7ff;
+        }
+
+        .option.selected {
+            background: var(--primary);
+            color: white;
+        }
+
+        .option-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .vote-count {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .option.selected .vote-count {
+            color: white;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 8px;
+            background: var(--secondary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+
+        .websocket-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: var(--dark);
+            color: white;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--danger);
+        }
+
+        .status-dot.connected {
+            background: var(--secondary);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-poll"></i> PollHub</h1>
+            <p>Real-time polling application</p>
+        </div>
+
+        <div class="app">
+            <!-- Auth Section -->
+            <div class="card auth-section">
+                <h2 class="section-title"><i class="fas fa-user"></i> Authentication</h2>
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="name" placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Enter your password">
+                </div>
+                <button class="btn btn-primary" onclick="register()">
+                    <i class="fas fa-user-plus"></i> Register
+                </button>
+                <button class="btn btn-secondary" onclick="login()" style="margin-left: 10px;">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                <div id="auth-status" style="margin-top: 15px;"></div>
+            </div>
+
+            <!-- Poll Creation -->
+            <div class="card poll-creation">
+                <h2 class="section-title"><i class="fas fa-plus"></i> Create Poll</h2>
+                <div class="form-group">
+                    <label>Question</label>
+                    <input type="text" id="poll-question" placeholder="Enter your question">
+                </div>
+                <div class="form-group">
+                    <label>Options (comma-separated)</label>
+                    <input type="text" id="poll-options" placeholder="Option 1, Option 2, Option 3">
+                </div>
+                <button class="btn btn-primary" onclick="createPoll()">
+                    <i class="fas fa-plus"></i> Create Poll
+                </button>
+            </div>
+
+            <!-- Poll List -->
+            <div class="card poll-list">
+                <h2 class="section-title"><i class="fas fa-list"></i> Active Polls</h2>
+                <div id="polls-container">
+                    <div style="text-align: center; padding: 40px; color: var(--gray);">
+                        <i class="fas fa-spinner loading"></i>
+                        <p>Loading polls...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+    <div class="websocket-status">
+        <div class="status-dot" id="ws-status"></div>
+        <span>WebSocket: Connecting...</span>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let ws = null;
+        let wsReconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPolls();
+            initWebSocket();
+        });
+
+        // Authentication functions
+        async function register() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!name || !email || !password) {
+                showNotification('Please fill all fields', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/users/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentUser = data.user;
+                    localStorage.setItem('token', data.token);
+                    showNotification('Registration successful!');
+                    updateAuthStatus();
+                } else {
+                    showNotification(data.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Registration failed', 'error');
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showNotification('Please fill all fields', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/users/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentUser = data.user;
+                    localStorage.setItem('token', data.token);
+                    showNotification('Login successful!');
+                    updateAuthStatus();
+                } else {
+                    showNotification(data.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Login failed', 'error');
+            }
+        }
+
+        // Poll functions
+        async function createPoll() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showNotification('Please login first', 'error');
+                return;
+            }
+
+            const question = document.getElementById('poll-question').value;
+            const options = document.getElementById('poll-options').value.split(',').map(opt => opt.trim()).filter(opt => opt);
+
+            if (!question || options.length < 2) {
+                showNotification('Please provide a question and at least 2 options', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/polls', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ question, options, isPublished: true })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showNotification('Poll created successfully!');
+                    document.getElementById('poll-question').value = '';
+                    document.getElementById('poll-options').value = '';
+                    loadPolls();
+                } else {
+                    showNotification(data.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Failed to create poll', 'error');
+            }
+        }
+
+        async function loadPolls() {
+            try {
+                const response = await fetch('http://localhost:3000/api/polls');
+                const polls = await response.json();
+                
+                const container = document.getElementById('polls-container');
+                container.innerHTML = '';
+
+                if (polls.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--gray);">
+                            <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 20px;"></i>
+                            <p>No polls available. Create the first one!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                polls.forEach(poll => {
+                    const totalVotes = poll.options.reduce((sum, opt) => sum + opt.voteCount, 0);
+                    const pollElement = document.createElement('div');
+                    pollElement.className = 'poll-card';
+                    pollElement.innerHTML = `
+                        <h3 class="poll-question">${poll.question}</h3>
+                        <div class="poll-options">
+                            ${poll.options.map(option => `
+                                <div class="option" onclick="vote('${poll.id}', '${option.id}')">
+                                    <div class="option-info">
+                                        <span>${option.text}</span>
+                                        <span class="vote-count">${option.voteCount} votes</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: ${totalVotes > 0 ? (option.voteCount / totalVotes * 100) : 0}%"></div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="user-info">
+                            <div class="avatar">${poll.creator.name.charAt(0).toUpperCase()}</div>
+                            <span>Created by ${poll.creator.name}</span>
+                        </div>
+                    `;
+                    container.appendChild(pollElement);
+                });
+            } catch (error) {
+                console.error('Error loading polls:', error);
+            }
+        }
+
+        async function vote(pollId, optionId) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showNotification('Please login to vote', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/votes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ pollId, pollOptionId: optionId })
+                });
+
+                if (response.ok) {
+                    showNotification('Vote submitted!');
+                } else {
+                    const data = await response.json();
+                    showNotification(data.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Failed to vote', 'error');
+            }
+        }
+
+        // WebSocket functions
+        function initWebSocket() {
+            try {
+                ws = new WebSocket('ws://localhost:3000');
+
+                ws.onopen = () => {
+                    console.log('WebSocket connected');
+                    wsReconnectAttempts = 0;
+                    updateWebSocketStatus(true);
+                };
+
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'VOTE_UPDATE') {
+                        showNotification('New vote received! Updating...');
+                        loadPolls();
+                    }
+                };
+
+                ws.onclose = () => {
+                    console.log('WebSocket disconnected');
+                    updateWebSocketStatus(false);
+                    attemptReconnect();
+                };
+
+                ws.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    updateWebSocketStatus(false);
+                };
+
+            } catch (error) {
+                console.error('WebSocket initialization failed:', error);
+            }
+        }
+
+        function attemptReconnect() {
+            if (wsReconnectAttempts < maxReconnectAttempts) {
+                wsReconnectAttempts++;
+                setTimeout(() => {
+                    console.log(`Attempting to reconnect... (${wsReconnectAttempts}/${maxReconnectAttempts})`);
+                    initWebSocket();
+                }, 3000);
+            }
+        }
+
+        function updateWebSocketStatus(connected) {
+            const statusDot = document.getElementById('ws-status');
+            const statusText = document.querySelector('.websocket-status span');
+            
+            if (connected) {
+                statusDot.className = 'status-dot connected';
+                statusText.textContent = 'WebSocket: Connected';
+            } else {
+                statusDot.className = 'status-dot';
+                statusText.textContent = `WebSocket: Disconnected (Retrying ${wsReconnectAttempts}/${maxReconnectAttempts})`;
+            }
+        }
+
+        // Utility functions
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function updateAuthStatus() {
+            const authStatus = document.getElementById('auth-status');
+            if (currentUser) {
+                authStatus.innerHTML = `
+                    <div style="color: var(--secondary);">
+                        <i class="fas fa-check-circle"></i> 
+                        Logged in as ${currentUser.name} (${currentUser.email})
+                    </div>
+                `;
+            } else {
+                authStatus.innerHTML = `
+                    <div style="color: var(--gray);">
+                        <i class="fas fa-info-circle"></i> Not logged in
+                    </div>
+                `;
+            }
+        }
+
+        // Check for existing token on page load
+        const token = localStorage.getItem('token');
+        if (token) {
+            // Try to get user info
+            fetch('http://localhost:3000/api/users/' + token.split('.')[1]) // Simple demo - in real app, decode JWT
+                .then(response => response.json())
+                .then(user => {
+                    currentUser = user;
+                    updateAuthStatus();
+                })
+                .catch(() => {
+                    localStorage.removeItem('token');
+                });
+        }
+    </script>
+</body>
+</html>
