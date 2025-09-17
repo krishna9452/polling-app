@@ -63,13 +63,4 @@ GRANT ALL PRIVILEGES ON DATABASE pollingapp TO pollinguser;
    ```
    run this in other terminal
    
-🚀 Usage
-1.Access the application: http://localhost:3000/app
 
-2.Register a new user
-
-3.Create polls with multiple options
-
-4.Vote on polls and watch real-time updates
-
-5.View results with live progress bars
