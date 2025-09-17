@@ -109,3 +109,10 @@ GET /api/votes/poll/:pollId - Get votes for a poll
 ws://localhost:3000 - Real-time updates
 
 Connect with ?pollId=<POLL_ID> for specific poll updates
+
+
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-green)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express-4.x-lightgrey)](https://expressjs.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13%2B-blue)](https://www.postgresql.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-orange)](https://www.prisma.io/)
+[![WebSocket](https://img.shields.io/badge/WebSocket-Real--time-yellowgreen)](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)
