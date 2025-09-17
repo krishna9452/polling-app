@@ -65,11 +65,14 @@ GRANT ALL PRIVILEGES ON DATABASE pollingapp TO pollinguser;
    
 Demo Video 
 
-Uploading Video_2025_09_17-1_edit_0 (1).mp4…
+
+https://github.com/user-attachments/assets/f676d3d9-1f24-4957-9732-442fcfa11848
 
 
 
-🚀 Usage
+
+
+## 🚀 Usage
 1. Access the application: http://localhost:3000/app
 
 2. Register a new user
@@ -80,13 +83,13 @@ Uploading Video_2025_09_17-1_edit_0 (1).mp4…
 
 5. View results with live progress bars
 
-📚 API Endpoints
+## 📚 API Endpoints
 Authentication
 POST /api/users/register - Register new user
 
 POST /api/users/login - User login
 
-Polls
+## Polls
 GET /api/polls - Get all published polls
 
 POST /api/polls - Create new poll (authenticated)
@@ -97,12 +100,12 @@ PUT /api/polls/:id - Update poll (authenticated)
 
 DELETE /api/polls/:id - Delete poll (authenticated)
 
-Votes
+## Votes
 POST /api/votes - Submit vote (authenticated)
 
 GET /api/votes/poll/:pollId - Get votes for a poll
 
-WebSocket
+## WebSocket
 ws://localhost:3000 - Real-time updates
 
 Connect with ?pollId=<POLL_ID> for specific poll updates
