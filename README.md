@@ -63,4 +63,46 @@ GRANT ALL PRIVILEGES ON DATABASE pollingapp TO pollinguser;
    ```
    run this in other terminal
    
+Demo Video 
 
+Uploading Video_2025_09_17-1_edit_0 (1).mp4…
+
+
+
+🚀 Usage
+1. Access the application: http://localhost:3000/app
+
+2. Register a new user
+
+3.Create polls with multiple options
+
+4. Vote on polls and watch real-time updates
+
+5. View results with live progress bars
+
+📚 API Endpoints
+Authentication
+POST /api/users/register - Register new user
+
+POST /api/users/login - User login
+
+Polls
+GET /api/polls - Get all published polls
+
+POST /api/polls - Create new poll (authenticated)
+
+GET /api/polls/:id - Get specific poll
+
+PUT /api/polls/:id - Update poll (authenticated)
+
+DELETE /api/polls/:id - Delete poll (authenticated)
+
+Votes
+POST /api/votes - Submit vote (authenticated)
+
+GET /api/votes/poll/:pollId - Get votes for a poll
+
+WebSocket
+ws://localhost:3000 - Real-time updates
+
+Connect with ?pollId=<POLL_ID> for specific poll updates
